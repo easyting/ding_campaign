@@ -121,11 +121,11 @@ function ding_campaign_ctype_image_default_styles() {
 function ding_campaign_ctype_node_info() {
   $items = array(
     'ding_campaign' => array(
-      'name' => t('Campaign'),
+      'name' => t('Bannerkampagne'),
       'base' => 'node_content',
       'description' => '',
       'has_title' => '1',
-      'title_label' => t('Campaign name'),
+      'title_label' => t('Bannerkampagnens titel'),
       'help' => '',
     ),
   );
