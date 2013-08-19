@@ -277,29 +277,34 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
 
   // Process search campaigns.
   if ($context['search_term'] != NULL) {
-    $terms = trim(drupal_strtolower(check_plain($context['search_term'])));
-    $condition = '';
+    $terms = trim(drupal_strtolower($context['search_term']));
+    $condition = $terms;
+    $multiple = FALSE;
 
     // Multiple keywords, comma and/or space separated.
     if (strpos($terms, ',') || strpos($terms, ' ')) {
       $terms = preg_replace('/(,?\s+)/', ',', $terms);
-      $terms = implode('\',\'', explode(',', $terms));
-      $condition = 'IN (\'' . $terms . '\')';
+      $terms = explode(',', $terms);
+      $condition = $terms;
+      $multiple = TRUE;
+    }
+
+    $query = db_select('ding_campaign_rules', 'r');
+    $query->fields('r', array('cid'));
+    $query->join('ding_campaign', 'd', 'r.cid = d.cid');
+    $query->join('node', 'n', 'r.cid = n.nid');
+    $query->condition('n.status', 1, '=');
+    $query->condition('r.type', '\'rule_term\'', '=');
+    if ($multiple) {
+      $query->condition('r.rule', $condition, 'IN');
     }
     // Single keyword.
     else {
-      $condition = ' = \'' . $context['search_term'] . '\'';
+      $query->condition('r.rule', $condition);
     }
+    $query->orderBy('d.weight', 'DESC');
+    $result = $query->execute()->fetchAll();
 
-    $result = db_query('SELECT r.cid
-      FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
-      WHERE r.type = \'rule_term\'
-        AND n.status = 1
-        AND r.cid = d.cid
-        AND r.cid = n.nid
-        AND r.rule ' . $condition . '
-      ORDER BY d.weight DESC')
-      ->fetchAll();
 
     foreach ($result as $k => $v) {
       @$campaigns[$v->cid] += 7;
