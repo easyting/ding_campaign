@@ -57,13 +57,10 @@ function ding_campaign_menu() {
  *   TRUE or FALSE value.
  */
 function ding_campaign_rules_access() {
-  $item = menu_get_item();
-  $node = NULL;
+  if (arg(0) == 'node' && arg(1)) {
+    $node = node_load(arg(1));
 
-  if (isset($item['page_arguments'][0]->type)) {
-    $node = $item['page_arguments'][0];
-
-    if ($node->type == 'ding_campaign') {
+    if (is_object($node) && $node->type == 'ding_campaign') {
       return TRUE;
     }
   }
