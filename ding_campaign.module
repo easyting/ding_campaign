@@ -291,7 +291,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
     $query->join('ding_campaign', 'd', 'r.cid = d.cid');
     $query->join('node', 'n', 'r.cid = n.nid');
     $query->condition('n.status', 1, '=');
-    $query->condition('r.type', '\'rule_term\'', '=');
+    $query->condition('r.type', 'rule_term', '=');
     if ($multiple) {
       $query->condition('r.rule', $condition, 'IN');
     }
@@ -570,6 +570,10 @@ function ding_campaign_node_delete($node) {
   // Delete the campaign if needed.
   if ($node->type == 'ding_campaign') {
     db_delete('ding_campaign')
+      ->condition('cid', $node->nid)
+      ->execute();
+
+    db_delete('ding_campaign_rules')
       ->condition('cid', $node->nid)
       ->execute();
 
