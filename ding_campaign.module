@@ -601,10 +601,28 @@ function ding_campaign_ctools_plugin_directory($module, $plugin) {
   }
 }
 
+/**
+ * Custom node form validation.
+ *
+ * @see ding_campaign_form_alter()
+ */
 function ding_campaign_campaign_node_form_validate($form, &$form_state) {
-  if ($form_state['input']['field_camp_settings'][$form['field_camp_settings']['#language']] == 'plain' || $form_state['input']['field_camp_settings'][$form['field_camp_settings']['#language']] == 'image') {
-    if (empty($form_state['input']['field_camp_link'][$form['field_camp_link']['#language']][0]['value'])) {
-      form_set_error('field_camp_link', 'Empty links are not allowed for plain text and image type campaigns.');
+  $input = $form_state['values'];
+  $language = $input['language'];
+  $campaign_type = $input['field_camp_settings'][$language][0]['value'];
+  $t_vars = array('@type' => $campaign_type);
+
+  // Forbid creation of campaign of type plain if the link is empty.
+  if ($campaign_type == 'plain') {
+    if (empty($input['field_camp_link'][$language][0]['value'])) {
+      form_set_error('field_camp_link', t('Campaign of type <em>@type</em> requires a link.', $t_vars));
+    }
+  }
+
+  // Force both image and link for image campaign types.
+  if ($campaign_type == 'image') {
+    if (empty($input['field_camp_link'][$language][0]['value']) || $input['field_camp_image'][$language][0]['fid'] == 0) {
+      form_set_error('', t('Campaign of type <em>@type</em> requires an image and link.', $t_vars));
     }
   }
 }
