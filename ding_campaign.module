@@ -341,7 +341,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
     }
   }
 
-  arsort($campaigns);
+  asort($campaigns);
 
   return array_slice(array_keys($campaigns), $offset, $limit);
 }
