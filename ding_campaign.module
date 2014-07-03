@@ -174,7 +174,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
   if ($context['page'] != NULL && isset($context['page']->nid) && $context['page']->type == 'ding_event') {
     $nid = $context['page']->nid;
 
-    $result = db_query('SELECT r.cid
+    $result = db_query('SELECT r.cid, d.weight
       FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
       WHERE r.nid = :nid
         AND r.type = \'rule_event\'
@@ -185,7 +185,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
       ->fetchAll();
 
     foreach ($result as $k => $v) {
-      @$campaigns[$v->cid] += 11;
+      @$campaigns[$v->cid] += -50 + $v->weight;
     }
   }
 
@@ -193,7 +193,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
   if ($context['page'] != NULL && isset($context['page']->nid) && $context['page']->type == 'ding_news') {
     $nid = $context['page']->nid;
 
-    $result = db_query('SELECT r.cid
+    $result = db_query('SELECT r.cid, d.weight
       FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
       WHERE r.nid = :nid
         AND r.type = \'rule_news\'
@@ -204,7 +204,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
       ->fetchAll();
 
     foreach ($result as $k => $v) {
-      @$campaigns[$v->cid] += 10;
+      @$campaigns[$v->cid] += -45 + $v->weight;
     }
   }
 
@@ -212,7 +212,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
   if ($context['page'] != NULL && isset($context['page']->nid)) {
     $nid = $context['page']->nid;
 
-    $result = db_query('SELECT r.cid
+    $result = db_query('SELECT r.cid, d.weight
       FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
       WHERE r.nid = :nid
         AND r.type = \'rule_page\'
@@ -223,12 +223,12 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
       ->fetchAll();
 
     foreach ($result as $k => $v) {
-      @$campaigns[$v->cid] += 9;
+      @$campaigns[$v->cid] += -40 + $v->weight;
     }
   }
 
   // Process path-based campaigns.
-  $result = db_query('SELECT r.cid, r.rule
+  $result = db_query('SELECT r.cid, r.rule, d.weight
     FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
     WHERE r.type = \'rule_path\'
       AND n.status = 1
@@ -246,7 +246,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
     }
 
     if ($page_match) {
-      @$campaigns[$v->cid] += 8;
+      @$campaigns[$v->cid] += -35 + $v->weight;
     }
   }
 
@@ -268,6 +268,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
     $query->fields('r', array('cid'));
     $query->join('ding_campaign', 'd', 'r.cid = d.cid');
     $query->join('node', 'n', 'r.cid = n.nid');
+    $query->addField('d', 'weight');
     $query->condition('n.status', 1, '=');
     $query->condition('r.type', 'rule_term', '=');
     if ($multiple) {
@@ -282,7 +283,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
 
 
     foreach ($result as $k => $v) {
-      @$campaigns[$v->cid] += 7;
+      @$campaigns[$v->cid] += -30 + $v->weight;
     }
   }
 
@@ -290,7 +291,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
   if ($context['page'] != NULL && isset($context['page']->nid) && $context['page']->type == 'ding_library') {
     $nid = $context['page']->nid;
 
-    $result = db_query('SELECT r.cid
+    $result = db_query('SELECT r.cid, d.weight
       FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
       WHERE r.nid = :nid
         AND r.type = \'rule_library\'
@@ -301,7 +302,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
       ->fetchAll();
 
     foreach ($result as $k => $v) {
-      @$campaigns[$v->cid] += 5;
+      @$campaigns[$v->cid] += -25 + $v->weight;
     }
   }
 
@@ -309,7 +310,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
   if ($context['taxonomy_term'] != NULL && isset($context['taxonomy_term']->tid)) {
     $tid = $context['taxonomy_term']->tid;
 
-    $result = db_query('SELECT r.cid
+    $result = db_query('SELECT r.cid, d.weight
       FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
       WHERE r.nid = :tid
         AND r.type = \'rule_taxonomy\'
@@ -320,12 +321,12 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
       ->fetchAll();
 
     foreach ($result as $k => $v) {
-      @$campaigns[$v->cid] += 3;
+      @$campaigns[$v->cid] += -20 + $v->weight;
     }
   }
 
   // Process generic campaigns.
-  $result = db_query('SELECT r.cid
+  $result = db_query('SELECT r.cid, d.weight
     FROM {ding_campaign_rules} r, {ding_campaign} d, {node} n
     WHERE r.type = \'rule_generic\'
       AND n.status = 1
@@ -336,7 +337,7 @@ function ding_campaign_get_campaigns($context, $limit, $offset) {
 
   foreach ($result as $k => $v) {
     if (!isset($campaigns[$v->cid]) || $campaigns[$v->cid] == 0) {
-      $campaigns[$v->cid] = (mt_rand(1, 10) / 10);
+      $campaigns[$v->cid] += -15 + $v->weight;
     }
   }
 
