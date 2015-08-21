@@ -99,7 +99,6 @@ function ding_campaign_theme($existing, $type, $theme, $path) {
  *   HTML formatted string.
  */
 function ding_campaign_display($context, $count, $offset, $style = 'medium') {
-
   $campaigns = ding_campaign_get_campaigns($context, $count, $offset);
 
   // There is at least one result.
@@ -112,14 +111,16 @@ function ding_campaign_display($context, $count, $offset, $style = 'medium') {
       $content = '';
 
       $camp_settings = field_get_items('node', $node, 'field_camp_settings');
+      $mobile = field_get_items('node', $node, 'field_camp_mobile_display');
 
+      $mobile_class =  $mobile ? 'ding-camp-item-mobile-display' : 'ding-camp-item-mobile-hide';
       $base_class = 'ding-campaign-item';
       // Select the display for campaign type.
       switch ($camp_settings[0]['value']) {
         case 'plain':
           $camp_link = field_get_items('node', $node, 'field_camp_link');
           $camp_text_plain = field_get_items('node', $node, 'field_camp_text_plain');
-          $content = '<div class="' . $base_class . ' ' . $base_class . '-id-' . $v . ' ding-campaign-item-plain"><a href="' . $camp_link[0]['value'] . '">' . $camp_text_plain[0]['value'] . '</a></div>';
+          $content = '<div class="' . $base_class . ' ' . $base_class . '-id-' . $v . ' ding-campaign-item-plain ' . $mobile_class . '"><a href="' . $camp_link[0]['value'] . '">' . $camp_text_plain[0]['value'] . '</a></div>';
           break;
         case 'image':
           $camp_link = field_get_items('node', $node, 'field_camp_link');
@@ -142,14 +143,15 @@ function ding_campaign_display($context, $count, $offset, $style = 'medium') {
           ));
 
           $link_tag = l($image_tag, $camp_link[0]['value'], array('html' => TRUE, 'absolute' => TRUE, 'attributes' => array('target' => '_blank')));
-          $content = '<div class="' . $base_class . ' ' . $base_class . '-id-' . $v . ' ding-campaign-item-image">' . $link_tag . '</div>';
+          $content = '<div class="' . $base_class . ' ' . $base_class . '-id-' . $v . ' ding-campaign-item-image ' . $mobile_class . '">' . $link_tag . '</div>';
           break;
         case 'full':
           $camp_text_full = field_get_items('node', $node, 'field_camp_text_full');
-          $content = '<div class="' . $base_class . ' ' . $base_class . '-id-' . $v . ' ding-campaign-item-full">' . $camp_text_full[0]['safe_value'] . '</div>';
+          $content = '<div class="' . $base_class . ' ' . $base_class . '-id-' . $v . ' ding-campaign-item-full ' . $mobile_class . '">' . $camp_text_full[0]['safe_value'] . '</div>';
           break;
-      }
 
+        $camp_settings = field_get_items('node', $node, 'field_camp_settings');
+      }
       $theme = 'ding_campaign';
       $block .= theme($theme, array('content' => $content));
     }
