@@ -112,8 +112,7 @@ function ding_campaign_display($context, $count, $offset, $style = 'medium') {
 
       $camp_settings = field_get_items('node', $node, 'field_camp_settings');
       $mobile = field_get_items('node', $node, 'field_camp_mobile_display');
-
-      $mobile_class =  $mobile ? 'ding-camp-item-mobile-display' : 'ding-camp-item-mobile-hide';
+      $mobile_class =  $mobile[0]['value'] ? 'ding-camp-item-mobile-display' : 'ding-camp-item-mobile-hide';
       $base_class = 'ding-campaign-item';
       // Select the display for campaign type.
       switch ($camp_settings[0]['value']) {
